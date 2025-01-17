@@ -1,0 +1,5 @@
+- create iam role with assume-role + AmazonEBSCSIDriverPolicy ( is already created so no policy resource need to create)
+- in kube-system ns
+- create SA = ebs-csi-controller-sa 
+- attach above role
+-
