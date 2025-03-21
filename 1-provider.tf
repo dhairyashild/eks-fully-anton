@@ -1,8 +1,9 @@
+ #### aws configure & gave values so we can access aws
 provider "aws" {
-    region = local.region
+    region = local.region                        
 }
 
-
+#####below code for version set for provider
 terraform {
   required_version = ">= 1.0.0"     # terraform CLI version
 
