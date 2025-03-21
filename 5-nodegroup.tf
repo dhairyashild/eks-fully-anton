@@ -54,7 +54,7 @@ lifecycle {
 #   }
 
 #   update_config {
-#     max_unavailable = 1
+#     max_unavailable = 1                      ##### Ensures a safe rolling update of EKS node group by limiting number of nodes that taken offline simultaneously to one.
 #   }
 # capacity_type = "ON_DEMAND"                # add this urself
 # instance_types = "t2.micro"                # add this urself
