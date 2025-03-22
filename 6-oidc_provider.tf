@@ -1,3 +1,6 @@
+####        https://registry.terraform.io/providers/hashicorp/tls/latest/docs/data-sources/certificate
+
+
 
 data "tls_certificate" "example" {
   url = aws_eks_cluster.example.identity[0].oidc[0].issuer
