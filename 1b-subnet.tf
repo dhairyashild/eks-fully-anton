@@ -8,6 +8,8 @@ map_public_ip_on_launch = true                 # I add - and  in a subnet, the m
    "kubernetes.io/role/elb"	= "1"                      # I add  ===This tag is used by the ALBC to automatically discover which subnets can be utilized for creating ELB. If tags are not present, you encounter errors-"could not find any suitable subnets for creating the ELB" 
       Name = "${local.eks_name}-public-sub-1a"         # I add
    "kubernetes.io/cluster/${local.eks_name}"=	"owned"      # tag indicates that resources (like security groups and subnets) are owned by specified Kubernetes cluster.
+                                                      #  Use "owned" when the subnet is dedicated to a single EKS cluster.
+                                                       # Use "shared" when the subnet is used by multiple EKS clusters or other resources.
 
   }
 }
