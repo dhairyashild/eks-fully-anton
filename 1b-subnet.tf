@@ -13,7 +13,7 @@ map_public_ip_on_launch = true            # I add - and  in a subnet, the map_pu
       
    Name = "${local.eks_name}-public-sub-1a"         # I add
 
-   "kubernetes.io/cluster/${local.eks_name}"=	"owned" # tag indicates that resources (like security groups and subnets) are owned 
+   "kubernetes.io/cluster/${local.eks_name}"=	"shared" # tag indicates that resources (like security groups and subnets) are owned 
                                                       # by specified Kubernetes cluster.
 
                                                       #  Use "owned" when the subnet is dedicated to a single EKS cluster.
@@ -33,7 +33,7 @@ availability_zone = local.az1
       Name = "${local.eks_name}-pvt-sub-1a"           # When you create a Kubernetes service of type LoadBalancer with the appropriate
                                       # annotations, the AWS Load Balancer Controller automatically provisions an internal load balancer.
 
-   "kubernetes.io/cluster/${local.eks_name}"=	"owned"  # However, it relies on the kubernetes.io/role/internal-elb tag to determine 
+   "kubernetes.io/cluster/${local.eks_name}"=	"shared"  # However, it relies on the kubernetes.io/role/internal-elb tag to determine 
             # which subnets are suitable for the internal load balancer.It ensures that only resources belonging to cluster are considered
             # for operations like scaling and load balancing, which helps maintain a clean and efficient infrastructure setup.
 
@@ -76,6 +76,38 @@ but recommended if you have multiple clusters in the same VPC, share subnets wit
 
 
 
+The rule is different for Security Groups vs. Subnets.
+
+For Subnets: Use shared. 
+owned ===  not used in prod for sub
+
+Subnets are foundational infrastructure shared by many services (EKS, RDS, etc.). 
+You don't want a cluster deletion to impact your entire network.
+For new clusters,this tag is not required by EKS.It only needed for legacy tooling/very specific advanced use cases.You can often omit it.
 
 
+For Security Groups: Use owned. 
+The cluster-specific node security group is not shared infrastructure. 
+It is created for and dedicated to a single cluster. 
+Its lifecycle should be tied to the cluster it belongs to for clean-up and security isolation.
+
+# Create a security group for EKS worker nodes
+resource "aws_security_group" "eks_nodes" {
+  name_prefix = "eks-nodes-" # Creates a unique name (e.g., eks-nodes-sg123abc)
+  vpc_id      = aws_vpc.eks_vpc.id
+
+  # This SG must allow inbound communication from the EKS control plane
+  # on the port used for node registration and health checks.
+  # The EKS service will automatically create rules in this SG.
+  # We only define the initial setup here.
+
+  tags = {
+    # This is the CRITICAL tag that identifies this SG as managed by the cluster
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"                                #####################
+
+    # Optional: Name tag for human identification
+    Name = "${var.cluster_name}-node-sg"
+  }
+
+  # It's good practice to let Terraform know this SG might have rules managed
 
